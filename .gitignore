@@ -11,3 +11,6 @@ asl_parser_pp.ml
 
 _build
 _opam
+
+.direnv
+

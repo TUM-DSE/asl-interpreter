@@ -9,6 +9,8 @@
 
 VERSION = 0.2.0
 
+export NIX_BUILD_TOP=/tmp/opam
+
 build::
 	dune build
 

@@ -13,3 +13,10 @@
  (modules testlexer)
  (flags (-cclib -lstdc++))
  (libraries libASL))
+
+(executable
+ (name testparser)
+ (modules testparser)
+ (modes exe)
+ (flags (-cclib -lstdc++))
+ (libraries libASL yojson))

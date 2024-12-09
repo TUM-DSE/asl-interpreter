@@ -931,7 +931,32 @@ regfield :: 'RegField_' ::=
 
 stmt :: 'Stmt_' ::=
     {{ aux _ l }}
-    {{ pp es = string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"placeholder\",\"node_data\":\"placeholder\"}" }}
+    {{ pp es = match es with
+        | Stmt_VarDeclsNoInit (typ, identifiers, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"VarDeclsNoInit\",\"node_data\":\"placeholder\"}"
+        | Stmt_VarDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"VarDecl\",\"node_data\":\"placeholder\"}"
+        | Stmt_ConstDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ConstDecl\",\"node_data\":\"placeholder\"}"
+        | Stmt_Assign (left_expression, right_expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Assign\",\"node_data\":\"placeholder\"}"
+        | Stmt_FunReturn (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"FunReturn\",\"node_data\":\"placeholder\"}"
+        | Stmt_ProcReturn (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ProcReturn\",\"node_data\":\"placeholder\"}"
+        | Stmt_Assert (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Assert\",\"node_data\":\"placeholder\"}"
+        | Stmt_Unpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Unpred\",\"node_data\":\"placeholder\"}"
+        | Stmt_ConstrainedUnpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ConstrainedUnpred\",\"node_data\":\"placeholder\"}"
+        | Stmt_ImpDef (indentifier, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ImpDef\",\"node_data\":\"placeholder\"}"
+        | Stmt_Undefined (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Undefined\",\"node_data\":\"placeholder\"}"
+        | Stmt_ExceptionTaken (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ExceptionTaken\",\"node_data\":\"placeholder\"}"
+        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_Unpred\",\"node_data\":\"placeholder\"}"
+        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":\"placeholder\"}"
+        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_Undefined\",\"node_data\":\"placeholder\"}"
+        | Stmt_See (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"See\",\"node_data\":\"placeholder\"}"
+        | Stmt_Throw (identifier, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Throw\",\"node_data\":\"placeholder\"}"
+        | Stmt_DecodeExecute (identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"DecodeExecute\",\"node_data\":\"placeholder\"}"
+        | Stmt_TCall (identifier, expressions1, expressions2, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"TCall\",\"node_data\":\"placeholder\"}"
+        | Stmt_If (expression, statements1, s_elsifs, statements2, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"If\",\"node_data\":\"placeholder\"}"
+        | Stmt_Case (expressions, alternatives, opt_statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Case\",\"node_data\":\"placeholder\"}"
+        | Stmt_For (identifier, expression1, direction, expression2, statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"For\",\"node_data\":\"placeholder\"}"
+        | Stmt_While (expression, statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"While\",\"node_data\":\"placeholder\"}"
+        | Stmt_Repeat (statements, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Repeat\",\"node_data\":\"placeholder\"}"
+        | Stmt_Try (statements, identifier, catchers, opt_statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Try\",\"node_data\":\"placeholder\"}" }}
     | simple_stmt        :: :: Simple      {{ quotient-remove }} {{ ocaml [[simple_stmt]] }}
     | compound_stmt      :: :: Compound    {{ quotient-remove }} {{ ocaml [[compound_stmt]] }}
 
@@ -1155,7 +1180,27 @@ catcher :: 'Catcher_' ::=
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 expr :: 'Expr_' ::=
-    {{ pp es = string "{\"node_type\":\"Expr_\",\"node_subtype\":\"placeholder\",\"node_data\":\"placeholder\"}" }}
+    {{ pp es = match es with
+        | Expr_If (if_cond_expression, if_body_expression, e_elsifs, else_body_expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"If\",\"node_data\":\"placeholder\"}"
+        | Expr_Binop (left_expression, binary_operator, right_expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Binop\",\"node_data\":\"placeholder\"}"
+        | Expr_Unop (unary_operator, expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Unop\",\"node_data\":\"placeholder\"}"
+        | Expr_Field (expression, identifier) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Field\",\"node_data\":\"placeholder\"}"
+        | Expr_Fields (expression, identifiers) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Fields\",\"node_data\":\"placeholder\"}"
+        | Expr_Slices (expression, slices) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Slices\",\"node_data\":\"placeholder\"}"
+        | Expr_In (expression, pattern) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"In\",\"node_data\":\"placeholder\"}"
+        | Expr_Var (identifier) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Var\",\"node_data\":\"placeholder\"}"
+        | Expr_Parens (expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Parens\",\"node_data\":\"placeholder\"}"
+        | Expr_Tuple (expressions) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Tuple\",\"node_data\":\"placeholder\"}"
+        | Expr_Unknown (typ) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Unknown\",\"node_data\":\"placeholder\"}"
+        | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"ImpDef\",\"node_data\":\"placeholder\"}"
+        | Expr_TApply (identifier, expressions1, expressions2) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"TApply\",\"node_data\":\"placeholder\"}"
+        | Expr_Array (expression1, expression2) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Array\",\"node_data\":\"placeholder\"}"
+        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitInt\",\"node_data\":\"placeholder\"}"
+        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitHex\",\"node_data\":\"placeholder\"}"
+        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitReal\",\"node_data\":\"placeholder\"}"
+        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitBits\",\"node_data\":\"placeholder\"}"
+        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitMask\",\"node_data\":\"placeholder\"}"
+        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitString\",\"node_data\":\"placeholder\"}" }}
     | conditional_expression :: :: Conditional {{ quotient-remove }} {{ ocaml [[conditional_expression]] }}
 
 % dexpr in hand parser

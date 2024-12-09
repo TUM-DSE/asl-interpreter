@@ -1,10 +1,9 @@
 (* dune exec bin/testparser.exe prelude.asl ../mra_tools/arch/regs.asl ../mra_tools/types.asl ../mra_tools/arch/arch.asl ../mra_tools/arch/arch_instrs.asl *)
 
 open LibASL
-open Yojson.Safe
 
 let opt_filenames : string list ref = ref []
-let opt_output : string ref = ref "asl.out"
+let opt_output : string ref = ref "ast.json"
 
 let options = Arg.align ([
     ( "-o", Arg.Set_string opt_output, "<file> Set output file" );
@@ -28,10 +27,7 @@ let _ =
         let t = LoadASL.read_file filename isPrelude false in
         r := t :: !r
     ) !opt_filenames;
-    (* let ast = List.concat (List.rev !r) in *)
-    (* Pretty-print the combined AST *)
-    List.iter (fun decl ->
-        let doc = Asl_parser_pp.pp_declaration decl in
-        PPrint.ToChannel.pretty 1.0 80 stdout doc
-    ) ast
-    (* TODO: Binary serialization *)
+    let ast = List.concat (List.rev !r) in
+    let oc = open_out !opt_output in
+    let doc = Asl_parser_pp.pp_declarations ast in
+    PPrint.ToChannel.pretty 1.0 80 oc doc

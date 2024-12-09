@@ -20,4 +20,4 @@
   (:standard -w -27 -cclib -lstdc++))
  (modules asl_ast asl_parser asl_parser_pp asl_utils asl_visitor cpu elf eval
    lexer lexersupport loadASL primops tcheck utils value visitor)
- (libraries pprint zarith z3))
+ (libraries pprint zarith z3 yojson))

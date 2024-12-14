@@ -196,7 +196,7 @@ declarations :: 'Decls_' ::= {{ menhir-start }}
     {{ phantom }} {{ ocaml declaration list }}
     {{ pp-raw es = string "[ "^^ separate (string ";\n") (List.map pp_raw_declaration es) ^^ string " ]" }}
     % {{ pp es = separate (string "\n") (List.map pp_declaration es) }}
-    {{ pp es = string "{\"node_type\":\"Decls_\",\"node_data\":["
+    {{ pp es = string "{\"node_type\":\"Decls_\",\"node_subtype\":\"Decls\",\"node_data\":["
         ^^ separate (string ",") (List.map pp_declaration es)
         ^^ string "]}" }}
     | leadingblank declaration1 .. declarationn :: :: Decls
@@ -932,31 +932,192 @@ regfield :: 'RegField_' ::=
 stmt :: 'Stmt_' ::=
     {{ aux _ l }}
     {{ pp es = match es with
-        | Stmt_VarDeclsNoInit (typ, identifiers, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"VarDeclsNoInit\",\"node_data\":\"placeholder\"}"
-        | Stmt_VarDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"VarDecl\",\"node_data\":\"placeholder\"}"
-        | Stmt_ConstDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ConstDecl\",\"node_data\":\"placeholder\"}"
-        | Stmt_Assign (left_expression, right_expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Assign\",\"node_data\":\"placeholder\"}"
-        | Stmt_FunReturn (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"FunReturn\",\"node_data\":\"placeholder\"}"
-        | Stmt_ProcReturn (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ProcReturn\",\"node_data\":\"placeholder\"}"
-        | Stmt_Assert (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Assert\",\"node_data\":\"placeholder\"}"
-        | Stmt_Unpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Unpred\",\"node_data\":\"placeholder\"}"
-        | Stmt_ConstrainedUnpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ConstrainedUnpred\",\"node_data\":\"placeholder\"}"
-        | Stmt_ImpDef (indentifier, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ImpDef\",\"node_data\":\"placeholder\"}"
-        | Stmt_Undefined (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Undefined\",\"node_data\":\"placeholder\"}"
-        | Stmt_ExceptionTaken (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ExceptionTaken\",\"node_data\":\"placeholder\"}"
-        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_Unpred\",\"node_data\":\"placeholder\"}"
-        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":\"placeholder\"}"
-        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_Undefined\",\"node_data\":\"placeholder\"}"
-        | Stmt_See (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"See\",\"node_data\":\"placeholder\"}"
-        | Stmt_Throw (identifier, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Throw\",\"node_data\":\"placeholder\"}"
-        | Stmt_DecodeExecute (identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"DecodeExecute\",\"node_data\":\"placeholder\"}"
-        | Stmt_TCall (identifier, expressions1, expressions2, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"TCall\",\"node_data\":\"placeholder\"}"
-        | Stmt_If (expression, statements1, s_elsifs, statements2, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"If\",\"node_data\":\"placeholder\"}"
-        | Stmt_Case (expressions, alternatives, opt_statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Case\",\"node_data\":\"placeholder\"}"
-        | Stmt_For (identifier, expression1, direction, expression2, statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"For\",\"node_data\":\"placeholder\"}"
-        | Stmt_While (expression, statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"While\",\"node_data\":\"placeholder\"}"
-        | Stmt_Repeat (statements, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Repeat\",\"node_data\":\"placeholder\"}"
-        | Stmt_Try (statements, identifier, catchers, opt_statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Try\",\"node_data\":\"placeholder\"}" }}
+        | Stmt_VarDeclsNoInit (typ, identifiers, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"VarDeclsNoInit\",\"node_data\":{\"ty\":"
+            ^^ pp_ty typ
+            ^^ string ",\"idents\":["
+            ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
+            ^^ string "],\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_VarDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"VarDecl\",\"node_data\":{\"ty\":"
+            ^^ pp_ty typ
+            ^^ string ",\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_ConstDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ConstDecl\",\"node_data\":{\"ty\":"
+            ^^ pp_ty typ
+            ^^ string ",\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Assign (left_expression, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Assign\",\"node_data\":{\"lexpr\":"
+            ^^ pp_lexpr left_expression
+            ^^ string ",\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_FunReturn (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"FunReturn\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_ProcReturn (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ProcReturn\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Assert (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Assert\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Unpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Unpred\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_ConstrainedUnpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ConstrainedUnpred\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_ImpDef (identifier, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Undefined (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Undefined\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_ExceptionTaken (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"ExceptionTaken\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_Unpred\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":{\"string\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Dep_Undefined\",\"node_data\":{\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_See (expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"See\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Throw (identifier, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Throw\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_DecodeExecute (identifier, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"DecodeExecute\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_TCall (identifier, expressions1, expressions2, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"TCall\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"exprs1\":["
+            ^^ separate (string ",") (List.map (fun expr -> pp_expr expr) expressions1)
+            ^^ string "],\"exprs2\":["
+            ^^ separate (string ",") (List.map (fun expr -> pp_expr expr) expressions2)
+            ^^ string "],\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_If (expression, statements1, s_elsifs, statements2, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"If\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"stmts1\":["
+            ^^ separate (string ",") (List.map pp_stmt statements1)
+            ^^ string "],\"s_elsifs\":["
+            ^^ separate (string ",") (List.map pp_s_elsif s_elsifs)
+            ^^ string "],\"stmts2\":["
+            ^^ separate (string ",") (List.map pp_stmt statements2)
+            ^^ string "],\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Case (expression, alternatives, opt_statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Case\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"alts\":["
+            ^^ separate (string ",") (List.map pp_alt alternatives)
+            ^^ string "],\"opt_stmts\":"
+            ^^ (match opt_statements with
+                | Some stmts -> string "[" ^^ separate (string ",") (List.map pp_stmt stmts) ^^ string "]"
+                | None -> string "null")
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_For (identifier, expression1, direction, expression2, statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"For\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"expr1\":"
+            ^^ pp_expr expression1
+            ^^ string ",\"direction\":"
+            ^^ pp_direction direction
+            ^^ string ",\"expr2\":"
+            ^^ pp_expr expression2
+            ^^ string ",\"stmts\":["
+            ^^ separate (string ",") (List.map pp_stmt statements)
+            ^^ string "],\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_While (expression, statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"While\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"stmts\":["
+            ^^ separate (string ",") (List.map pp_stmt statements)
+            ^^ string "],\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Repeat (statements, expression, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Repeat\",\"node_data\":{\"stmts\":["
+            ^^ separate (string ",") (List.map pp_stmt statements)
+            ^^ string "],\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | Stmt_Try (statements, identifier, catchers, opt_statements, location) -> string "{\"node_type\":\"Stmt_\",\"node_subtype\":\"Try\",\"node_data\":{\"stmts\":["
+            ^^ separate (string ",") (List.map pp_stmt statements)
+            ^^ string "],\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"catchers\":["
+            ^^ separate (string ",") (List.map pp_catcher catchers)
+            ^^ string "],\"opt_stmts\":"
+            ^^ (match opt_statements with
+                | Some stmts -> string "[" ^^ separate (string ",") (List.map pp_stmt stmts) ^^ string "]"
+                | None -> string "null")
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}" }}
     | simple_stmt        :: :: Simple      {{ quotient-remove }} {{ ocaml [[simple_stmt]] }}
     | compound_stmt      :: :: Compound    {{ quotient-remove }} {{ ocaml [[compound_stmt]] }}
 
@@ -1037,6 +1198,62 @@ assignment_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
     | lexpr = expr ;               :: :: Assign
 
 lexpr :: 'LExpr_' ::=
+    {{ pp es = match es with
+    | LExpr_Wildcard -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Wildcard\",\"node_data\":null}"
+    | LExpr_Var identifier -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Var\",\"node_data\":{\"ident\":\""
+        ^^ pp_ident identifier
+        ^^ string "\"}"
+        ^^ string "}"
+    | LExpr_Field (left_expression, identifier) -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Field\",\"node_data\":{\"lexpr\":"
+        ^^ pp_lexpr left_expression
+        ^^ string ",\"ident\":\""
+        ^^ pp_ident identifier
+        ^^ string "\"}"
+        ^^ string "}"
+    | LExpr_Fields (left_expression, identifiers) -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Fields\",\"node_data\":{\"lexpr\":"
+        ^^ pp_lexpr left_expression
+        ^^ string ",\"idents\":["
+        ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
+        ^^ string "]}"
+        ^^ string "}"
+    | LExpr_Slices (left_expression, slices) -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Slices\",\"node_data\":{\"lexpr\":"
+        ^^ pp_lexpr left_expression
+        ^^ string ",\"slices\":["
+        ^^ separate (string ",") (List.map pp_slice slices)
+        ^^ string "]}"
+        ^^ string "}"
+    | LExpr_BitTuple left_expressions -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"BitTuple\",\"node_data\":{\"lexprs\":["
+        ^^ separate (string ",") (List.map pp_lexpr left_expressions)
+        ^^ string "]}"
+        ^^ string "}"
+    | LExpr_Tuple left_expressions -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Tuple\",\"node_data\":{\"lexprs\":["
+        ^^ separate (string ",") (List.map pp_lexpr left_expressions)
+        ^^ string "]}"
+        ^^ string "}"
+    | LExpr_Array (left_expression, expression) -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Array\",\"node_data\":{\"lexpr\":"
+        ^^ pp_lexpr left_expression
+        ^^ string ",\"expr\":"
+        ^^ pp_expr expression
+        ^^ string "}"
+        ^^ string "}"
+    | LExpr_Write (identifier, expressions1, expressions2) -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"Write\",\"node_data\":{\"ident\":\""
+        ^^ pp_ident identifier
+        ^^ string "\",\"exprs1\":["
+        ^^ separate (string ",") (List.map pp_expr expressions1)
+        ^^ string "],\"exprs2\":["
+        ^^ separate (string ",") (List.map pp_expr expressions2)
+        ^^ string "]}"
+        ^^ string "}"
+    | LExpr_ReadWrite (identifier1, identifier2, expressions1, expressions2) -> string "{\"node_type\":\"LExpr_\",\"node_subtype\":\"ReadWrite\",\"node_data\":{\"ident1\":\""
+        ^^ pp_ident identifier1
+        ^^ string "\",\"ident2\":\""
+        ^^ pp_ident identifier2
+        ^^ string "\",\"exprs1\":["
+        ^^ separate (string ",") (List.map pp_expr expressions1)
+        ^^ string "],\"exprs2\":["
+        ^^ separate (string ",") (List.map pp_expr expressions2)
+        ^^ string "]}"
+        ^^ string "}" }}
     | -                                   ::   :: Wildcard
     | qualident                           ::   :: Var
     | lexpr . ident                       ::   :: Field
@@ -1102,6 +1319,13 @@ conditional_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
       :: :: Case
 
 s_elsif :: 'S_Elsif_' ::=
+    {{ pp es = match es with
+        | S_Elsif_Cond (expression, statements) -> string "{\"node_type\":\"S_Elseif_\",\"node_subtype\":\"Cond\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"stmts\":["
+            ^^ separate (string ",") (List.map pp_stmt statements)
+            ^^ string "]}"
+            ^^ string "}" }}
     | elsif expr then opt_indented_block  ::   :: Cond
     | elsif expr then simple_stmts        :: S :: Cond2 {{ ocaml S_Elsif_Cond([[expr]], [[simple_stmts]]) }}
 
@@ -1118,6 +1342,17 @@ optional_else :: 'S_Else' ::=
     |                                    :: :: NoElse     {{ ocaml [] }}
 
 alt :: 'Alt_' ::=
+    {{ pp es = match es with
+    | Alt_Alt (patterns, opt_expression, statements) -> string "{\"node_type\":\"Alt\",\"node_subtype\":\"Alt\",\"node_data\":{\"patterns\":["
+        ^^ separate (string ",") (List.map pp_pattern patterns)
+        ^^ string "],\"opt_expr\":"
+        ^^ (match opt_expression with
+            | Some expr -> pp_expr expr
+            | None -> string "null")
+        ^^ string ",\"stmts\":["
+        ^^ separate (string ",") (List.map pp_stmt statements)
+        ^^ string "]}"
+        ^^ string "}" }}
     | when pattern1 , ... , patternn opt_altcond possibly_empty_block ::   :: Alt
     | when pattern1 , ... , patternn opt_altcond simple_if_stmt       :: S :: Alt2 {{ ocaml Alt_Alt([[pattern1 ... patternn]], [[opt_altcond]], [ [[simple_if_stmt]] ]) }}
 
@@ -1139,6 +1374,46 @@ opt_altcond :: 'AltCond_' ::= {{ ocaml expr option }}
     |            :: :: None {{ ocaml None }}
 
 pattern :: 'Pat_' ::=
+    {{ pp es = match es with
+        | Pat_LitInt integerLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitInt\",\"node_data\":{\"intLit\":"
+            ^^ string (Yojson.Safe.to_string (`String integerLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Pat_LitHex hexadecimalLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitHex\",\"node_data\":{\"hexLit\":"
+            ^^ string (Yojson.Safe.to_string (`String hexadecimalLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Pat_LitBits bitsLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitBits\",\"node_data\":{\"bitsLit\":"
+            ^^ string (Yojson.Safe.to_string (`String bitsLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Pat_LitMask maskLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitMask\",\"node_data\":{\"maskLit\":"
+            ^^ string (Yojson.Safe.to_string (`String maskLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Pat_Const identifier -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Const\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\"}"
+            ^^ string "}"
+        | Pat_Wildcard -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Wildcard\",\"node_data\":null}"
+        | Pat_Tuple patterns -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Tuple\",\"node_data\":{\"patterns\":["
+            ^^ separate (string ",") (List.map pp_pattern patterns)
+            ^^ string "]}"
+            ^^ string "}"
+        | Pat_Set patterns -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Set\",\"node_data\":{\"patterns\":["
+            ^^ separate (string ",") (List.map pp_pattern patterns)
+            ^^ string "]}"
+            ^^ string "}"
+        | Pat_Range (expression1, expression2) -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Range\",\"node_data\":{\"from\":"
+            ^^ pp_expr expression1
+            ^^ string ",\"to\":"
+            ^^ pp_expr expression2
+            ^^ string "}"
+            ^^ string "}"
+        | Pat_Single expression -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Single\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string "}"
+            ^^ string "}" }}
     | intLit                             :: :: LitInt
     | hexLit                             :: :: LitHex
     | bitsLit                            :: :: LitBits
@@ -1159,6 +1434,9 @@ repetitive_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
     | repeat indented_block until expr ; EOL           :: :: Repeat
 
 direction :: 'Direction_' ::=
+    {{ pp es = match es with
+        | Direction_Up -> string "{\"node_type\":\"Direction_\",\"node_subtype\":\"Up\",\"node_data\":null}"
+        | Direction_Down -> string "{\"node_type\":\"Direction_\",\"node_subtype\":\"Down\",\"node_data\":null}" }}
     | to      :: :: Up
     | downto  :: :: Down
 
@@ -1173,6 +1451,13 @@ catch_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
       :: :: Try
 
 catcher :: 'Catcher_' ::=
+    {{ pp es = match es with
+        | Catcher_Guarded (expression, statements) -> string "{\"node_type\":\"Catcher\",\"node_subtype\":\"Guarded\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"stmts\":["
+            ^^ separate (string ",") (List.map pp_stmt statements)
+            ^^ string "]}"
+            ^^ string "}" }}
     | when expr opt_indented_block  :: :: Guarded
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1227,33 +1512,33 @@ binop_or_concat :: 'Binop_' ::= {{ quotient-with binop }}
 
 binop :: 'Binop_' ::=
     {{ pp es = match es with
-        | Binop_Eq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Eq\"}"
-        | Binop_NtEq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"NtEq\"}"
-        | Binop_Gt -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Gt\"}"
-        | Binop_GtEq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"GtEq\"}"
-        | Binop_Lt -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Lt\"}"
-        | Binop_LtEq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"LtEq\"}"
-        | Binop_Plus -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Plus\"}"
-        | Binop_Minus -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Minus\"}"
-        | Binop_Multiply -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Multiply\"}"
-        | Binop_Divide -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Divide\"}"
-        | Binop_Power -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Power\"}"
-        | Binop_Quot -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Quot\"}"
-        | Binop_Rem -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Rem\"}"
-        | Binop_Div -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Div\"}"
-        | Binop_Mod -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Mod\"}"
-        | Binop_ShiftL -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"ShiftL\"}"
-        | Binop_ShiftR -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"ShiftR\"}"
-        | Binop_BoolAnd -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolAnd\"}"
-        | Binop_BoolOr -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolOr\"}"
-        | Binop_BoolIff -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolIff\"}"
-        | Binop_BoolImplies -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolImplies\"}"
-        | Binop_BitOr -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BitOr\"}"
-        | Binop_BitEor -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BitEor\"}"
-        | Binop_BitAnd -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BitAnd\"}"
-        | Binop_Append -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Append\"}"
-        | Binop_Concat -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Concat\"}"
-        | Binop_DUMMY -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"DUMMY\"}" }}
+        | Binop_Eq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Eq\",\"node_data\":null}"
+        | Binop_NtEq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"NtEq\",\"node_data\":null}"
+        | Binop_Gt -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Gt\",\"node_data\":null}"
+        | Binop_GtEq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"GtEq\",\"node_data\":null}"
+        | Binop_Lt -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Lt\",\"node_data\":null}"
+        | Binop_LtEq -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"LtEq\",\"node_data\":null}"
+        | Binop_Plus -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Plus\",\"node_data\":null}"
+        | Binop_Minus -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Minus\",\"node_data\":null}"
+        | Binop_Multiply -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Multiply\",\"node_data\":null}"
+        | Binop_Divide -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Divide\",\"node_data\":null}"
+        | Binop_Power -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Power\",\"node_data\":null}"
+        | Binop_Quot -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Quot\",\"node_data\":null}"
+        | Binop_Rem -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Rem\",\"node_data\":null}"
+        | Binop_Div -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Div\",\"node_data\":null}"
+        | Binop_Mod -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Mod\",\"node_data\":null}"
+        | Binop_ShiftL -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"ShiftL\",\"node_data\":null}"
+        | Binop_ShiftR -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"ShiftR\",\"node_data\":null}"
+        | Binop_BoolAnd -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolAnd\",\"node_data\":null}"
+        | Binop_BoolOr -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolOr\",\"node_data\":null}"
+        | Binop_BoolIff -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolIff\",\"node_data\":null}"
+        | Binop_BoolImplies -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BoolImplies\",\"node_data\":null}"
+        | Binop_BitOr -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BitOr\",\"node_data\":null}"
+        | Binop_BitEor -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BitEor\",\"node_data\":null}"
+        | Binop_BitAnd -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"BitAnd\",\"node_data\":null}"
+        | Binop_Append -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Append\",\"node_data\":null}"
+        | Binop_Concat -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"Concat\",\"node_data\":null}"
+        | Binop_DUMMY -> string "{\"node_type\":\"Binop_\",\"node_subtype\":\"DUMMY\",\"node_data\":null}" }}
     | ==      :: :: Eq
     | !=      :: :: NtEq
     | >       :: :: Gt
@@ -1316,9 +1601,9 @@ opt_stringLit :: 'String_' ::=
 
 unop :: 'Unop_' ::=
     {{ pp es = match es with
-        | Unop_Negate -> string "{\"node_type\":\"Unop_\",\"node_subtype\":\"Negate\"}"
-        | Unop_BoolNot -> string "{\"node_type\":\"Unop_\",\"node_subtype\":\"BoolNot\"}"
-        | Unop_BitsNot -> string "{\"node_type\":\"Unop_\",\"node_subtype\":\"BitsNot\"}" }}
+        | Unop_Negate -> string "{\"node_type\":\"Unop_\",\"node_subtype\":\"Negate\",\"node_data\":null}"
+        | Unop_BoolNot -> string "{\"node_type\":\"Unop_\",\"node_subtype\":\"BoolNot\",\"node_data\":null}"
+        | Unop_BitsNot -> string "{\"node_type\":\"Unop_\",\"node_subtype\":\"BitsNot\",\"node_data\":null}" }}
     | -        :: :: Negate
     | !        :: :: BoolNot
     | NOT      :: :: BitsNot

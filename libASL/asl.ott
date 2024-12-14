@@ -1466,26 +1466,117 @@ catcher :: 'Catcher_' ::=
 
 expr :: 'Expr_' ::=
     {{ pp es = match es with
-        | Expr_If (if_cond_expression, if_body_expression, e_elsifs, else_body_expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"If\",\"node_data\":\"placeholder\"}"
-        | Expr_Binop (left_expression, binary_operator, right_expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Binop\",\"node_data\":\"placeholder\"}"
-        | Expr_Unop (unary_operator, expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Unop\",\"node_data\":\"placeholder\"}"
-        | Expr_Field (expression, identifier) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Field\",\"node_data\":\"placeholder\"}"
-        | Expr_Fields (expression, identifiers) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Fields\",\"node_data\":\"placeholder\"}"
-        | Expr_Slices (expression, slices) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Slices\",\"node_data\":\"placeholder\"}"
-        | Expr_In (expression, pattern) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"In\",\"node_data\":\"placeholder\"}"
-        | Expr_Var (identifier) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Var\",\"node_data\":\"placeholder\"}"
-        | Expr_Parens (expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Parens\",\"node_data\":\"placeholder\"}"
-        | Expr_Tuple (expressions) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Tuple\",\"node_data\":\"placeholder\"}"
-        | Expr_Unknown (typ) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Unknown\",\"node_data\":\"placeholder\"}"
-        | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"ImpDef\",\"node_data\":\"placeholder\"}"
-        | Expr_TApply (identifier, expressions1, expressions2) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"TApply\",\"node_data\":\"placeholder\"}"
-        | Expr_Array (expression1, expression2) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Array\",\"node_data\":\"placeholder\"}"
-        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitInt\",\"node_data\":\"placeholder\"}"
-        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitHex\",\"node_data\":\"placeholder\"}"
-        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitReal\",\"node_data\":\"placeholder\"}"
-        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitBits\",\"node_data\":\"placeholder\"}"
-        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitMask\",\"node_data\":\"placeholder\"}"
-        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitString\",\"node_data\":\"placeholder\"}" }}
+        | Expr_If (if_cond_expression, if_body_expression, e_elsifs, else_body_expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"If\",\"node_data\":{\"if_cond_expr\":"
+            ^^ pp_expr if_cond_expression
+            ^^ string ",\"if_body_expr\":"
+            ^^ pp_expr if_body_expression
+            ^^ string ",\"e_elsifs\":["
+            ^^ separate (string ",") (List.map pp_e_elsif e_elsifs)
+            ^^ string "],\"else_body_expr\":"
+            ^^ pp_expr else_body_expression
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_Binop (left_expression, binary_operator, right_expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Binop\",\"node_data\":{\"l_expr\":"
+            ^^ pp_expr left_expression
+            ^^ string ",\"binop\":"
+            ^^ pp_binop binary_operator
+            ^^ string ",\"r_expr\":"
+            ^^ pp_expr right_expression
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_Unop (unary_operator, expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Unop\",\"node_data\":{\"unop\":"
+            ^^ pp_unop unary_operator
+            ^^ string ",\"expr\":"
+            ^^ pp_expr expression
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_Field (expression, identifier) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Field\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\"}"
+            ^^ string "}"
+        | Expr_Fields (expression, identifiers) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Fields\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"idents\":["
+            ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
+            ^^ string "]}"
+            ^^ string "}"
+        | Expr_Slices (expression, slices) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Slices\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"slices\":["
+            ^^ separate (string ",") (List.map pp_slice slices)
+            ^^ string "]}"
+            ^^ string "}"
+        | Expr_In (expression, pattern) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"In\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string ",\"pattern\":"
+            ^^ pp_pattern pattern
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_Var (identifier) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Var\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\"}"
+            ^^ string "}"
+        | Expr_Parens (expression) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Parens\",\"node_data\":{\"expr\":"
+            ^^ pp_expr expression
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_Tuple (expressions) -> 
+            string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Tuple\",\"node_data\":{\"exprs\":["
+            ^^ separate (string ",") (List.map pp_expr expressions)
+            ^^ string "]}"
+            ^^ string "}"
+        | Expr_Unknown (typ) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Unknown\",\"node_data\":{\"ty\":"
+            ^^ pp_ty typ
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"ty\":"
+            ^^ pp_ty typ
+            ^^ string ",\"string\":"
+            ^^ (match opt_stringLiteral with
+                | Some s -> PPrint.string (Yojson.Safe.to_string (`String s))
+                | None -> string "null")
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_TApply (identifier, expressions1, expressions2) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"TApply\",\"node_data\":{\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"exprs1\":["
+            ^^ separate (string ",") (List.map pp_expr expressions1)
+            ^^ string "],\"exprs2\":["
+            ^^ separate (string ",") (List.map pp_expr expressions2)
+            ^^ string "]}"
+            ^^ string "}"
+        | Expr_Array (expression1, expression2) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"Array\",\"node_data\":{\"expr1\":"
+            ^^ pp_expr expression1
+            ^^ string ",\"expr2\":"
+            ^^ pp_expr expression2
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitInt\",\"node_data\":{\"intLit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String integerLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitHex\",\"node_data\":{\"hexLit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String hexadecimalLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitReal\",\"node_data\":{\"realLit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String realLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitBits\",\"node_data\":{\"bitsLit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String bitsLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitMask\",\"node_data\":{\"maskLit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String maskLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr_\",\"node_subtype\":\"LitString\",\"node_data\":{\"string\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
+            ^^ string "}"
+            ^^ string "}" }}
     | conditional_expression :: :: Conditional {{ quotient-remove }} {{ ocaml [[conditional_expression]] }}
 
 % dexpr in hand parser
@@ -1494,6 +1585,13 @@ conditional_expression :: 'Expr_' ::= {{ quotient-with expr }}
     | cexpr                                                  :: :: CExpr  {{ quotient-remove }} {{ ocaml [[cexpr]] }}
 
 e_elsif :: 'E_Elsif_' ::= {{ ocaml expr * expr }}
+    {{ pp es = match es with 
+        | E_Elsif_Cond (expression1, expression2) -> string "{\"node_type\":\"E_Elsif_\",\"node_subtype\":\"Cond\",\"node_data\":{\"expr1\":"
+            ^^ pp_expr expression1
+            ^^ string ",\"expr2\":"
+            ^^ pp_expr expression2
+            ^^ string "}"
+            ^^ string "}" }}
     | elsif expr1 then expr2                                 :: :: Cond
 
 cexpr :: 'Expr_' ::= {{ quotient-with expr }}

@@ -540,7 +540,11 @@ declaration :: 'Decl_' ::=
             ^^ pp_ident identifier
             ^^ string "\",\"mapfields\":["
             ^^ separate (string ",") (List.map (fun mapfield -> pp_mapfield mapfield) mapfields)
-            ^^ string "],\"stmts\":["
+            ^^ string "],\"opt_expr\":"
+            ^^ (match opt_expression with
+                | Some expr -> pp_expr expr
+                | None -> string "null")
+            ^^ string ",\"stmts\":["
             ^^ separate (string ",") (List.map (fun stmt -> pp_stmt stmt) statements)
             ^^ string "],\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
@@ -594,13 +598,11 @@ variable_declaration :: 'Decl_' ::= {{ quotient-with declaration }}
 
 ixtype :: 'Index_' ::=
     {{ pp es = match es with
-        | Index_Enum identifier ->
-            string "{\"node_type\":\"Index\",\"node_subtype\":\"Enum\",\"node_data\":{\"serde_tag\":\"IndexEnumData\",\"ident\":\""
+        | Index_Enum identifier -> string "{\"node_type\":\"Index\",\"node_subtype\":\"Enum\",\"node_data\":{\"serde_tag\":\"IndexEnumData\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Index_Range (expression1, expression2) ->
-            string "{\"node_type\":\"Index\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"IndexRangeData\",\"expr1\":"
+        | Index_Range (expression1, expression2) -> string "{\"node_type\":\"Index\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"IndexRangeData\",\"expr1\":"
             ^^ pp_expr expression1
             ^^ string ",\"expr2\":"
             ^^ pp_expr expression2
@@ -690,7 +692,7 @@ encoding :: 'Encoding_' ::=
                 (List.map (fun (int, bitsList) ->
                     string "{\"int\":"
                         ^^ PPrint.string (string_of_int int)
-                        ^^ string ",\"bitsList\":\""
+                        ^^ string ",\"bits_list\":\""
                         ^^ string bitsList
                         ^^ string "\"}")
                     unpredictables)
@@ -748,11 +750,11 @@ offset :: 'Offset_' ::=
 
 opcode_value :: 'Opcode_' ::=
     {{ pp es = match es with
-        | Opcode_Bits bits -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"OpcodeBitsData\",\"bitsLit\":\""
+        | Opcode_Bits bits -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"OpcodeBitsData\",\"bits_lit\":\""
             ^^ string bits
             ^^ string "\"}"
             ^^ string "}"
-        | Opcode_Mask mask -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Mask\",\"node_data\":{\"serde_tag\":\"OpcodeMaskData\",\"bitsLit\":\""
+        | Opcode_Mask mask -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Mask\",\"node_data\":{\"serde_tag\":\"OpcodeMaskData\",\"bits_lit\":\""
             ^^ string mask
             ^^ string "\"}"
             ^^ string "}" }}
@@ -880,7 +882,7 @@ ty :: 'Type_' ::=
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}"
-        | Type_Register (integerLiteral, fields) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Register\",\"node_data\":{\"serde_tag\":\"TypeRegisterData\",\"intLit\":\""
+        | Type_Register (integerLiteral, fields) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Register\",\"node_data\":{\"serde_tag\":\"TypeRegisterData\",\"int_lit\":\""
             ^^ string integerLiteral
             ^^ string "\",\"fields\":["
             ^^ separate (string ",") 
@@ -893,7 +895,7 @@ ty :: 'Type_' ::=
                     fields)
             ^^ string "]}"
             ^^ string "}"
-        | Type_Array (indexType, typ) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"TypeArrayData\",\"ixType\":"
+        | Type_Array (indexType, typ) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"TypeArrayData\",\"ix_type\":"
             ^^ pp_ixtype indexType
             ^^ string ",\"ty\":"
             ^^ pp_ty typ
@@ -961,7 +963,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Assign (left_expression, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Assign\",\"node_data\":{\"serde_tag\":\"StmtAssignData\",\"lexpr\":"
+        | Stmt_Assign (left_expression, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Assign\",\"node_data\":{\"serde_tag\":\"StmtAssignData\",\"l_expr\":"
             ^^ pp_lexpr left_expression
             ^^ string ",\"expr\":"
             ^^ pp_expr expression
@@ -1011,7 +1013,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":{\"serde_tag\":\"StmtDepImpDefData\",\"string\":"
+        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":{\"serde_tag\":\"StmtDepImpDefData\",\"string_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
             ^^ string ",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
@@ -1205,33 +1207,33 @@ lexpr :: 'LExpr_' ::=
         ^^ pp_ident identifier
         ^^ string "\"}"
         ^^ string "}"
-    | LExpr_Field (left_expression, identifier) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"LExprFieldData\",\"lexpr\":"
+    | LExpr_Field (left_expression, identifier) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"LExprFieldData\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"ident\":\""
         ^^ pp_ident identifier
         ^^ string "\"}"
         ^^ string "}"
-    | LExpr_Fields (left_expression, identifiers) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Fields\",\"node_data\":{\"serde_tag\":\"LExprFieldsData\",\"lexpr\":"
+    | LExpr_Fields (left_expression, identifiers) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Fields\",\"node_data\":{\"serde_tag\":\"LExprFieldsData\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"idents\":["
         ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_Slices (left_expression, slices) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Slices\",\"node_data\":{\"serde_tag\":\"LExprSlicesData\",\"lexpr\":"
+    | LExpr_Slices (left_expression, slices) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Slices\",\"node_data\":{\"serde_tag\":\"LExprSlicesData\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"slices\":["
         ^^ separate (string ",") (List.map pp_slice slices)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_BitTuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"BitTuple\",\"node_data\":{\"serde_tag\":\"LExprBitTupleData\",\"lexprs\":["
+    | LExpr_BitTuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"BitTuple\",\"node_data\":{\"serde_tag\":\"LExprBitTupleData\",\"l_exprs\":["
         ^^ separate (string ",") (List.map pp_lexpr left_expressions)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_Tuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"LExprTupleData\",\"lexprs\":["
+    | LExpr_Tuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"LExprTupleData\",\"l_exprs\":["
         ^^ separate (string ",") (List.map pp_lexpr left_expressions)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_Array (left_expression, expression) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"LExprArrayData\",\"lexpr\":"
+    | LExpr_Array (left_expression, expression) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"LExprArrayData\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"expr\":"
         ^^ pp_expr expression
@@ -1321,7 +1323,7 @@ conditional_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
 
 s_elsif :: 'S_Elsif_' ::=
     {{ pp es = match es with
-        | S_Elsif_Cond (expression, statements) -> string "{\"node_type\":\"S_Elseif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"SElseifCondData\",\"expr\":"
+        | S_Elsif_Cond (expression, statements) -> string "{\"node_type\":\"SElsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"SElsifCondData\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
@@ -1376,42 +1378,42 @@ opt_altcond :: 'AltCond_' ::= {{ ocaml expr option }}
 
 pattern :: 'Pat_' ::=
     {{ pp es = match es with
-        | Pat_LitInt integerLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"PatternLitIntData\",\"intLit\":"
+        | Pat_LitInt integerLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"PatLitIntData\",\"int_lit\":"
             ^^ string (Yojson.Safe.to_string (`String integerLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_LitHex hexadecimalLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"PatternLitHexData\",\"hexLit\":"
+        | Pat_LitHex hexadecimalLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"PatLitHexData\",\"hex_lit\":"
             ^^ string (Yojson.Safe.to_string (`String hexadecimalLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_LitBits bitsLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"PatternLitBitsData\",\"bitsLit\":"
+        | Pat_LitBits bitsLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"PatLitBitsData\",\"bits_lit\":"
             ^^ string (Yojson.Safe.to_string (`String bitsLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_LitMask maskLiteral -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"PatternLitMaskData\",\"maskLit\":"
+        | Pat_LitMask maskLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"PatLitMaskData\",\"mask_lit\":"
             ^^ string (Yojson.Safe.to_string (`String maskLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_Const identifier -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Const\",\"node_data\":{\"serde_tag\":\"PatternConstData\",\"ident\":\""
+        | Pat_Const identifier -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Const\",\"node_data\":{\"serde_tag\":\"PatConstData\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Pat_Wildcard -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Wildcard\",\"node_data\":null}"
-        | Pat_Tuple patterns -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"PatternTupleData\",\"patterns\":["
+        | Pat_Wildcard -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Wildcard\",\"node_data\":null}"
+        | Pat_Tuple patterns -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"PatTupleData\",\"patterns\":["
             ^^ separate (string ",") (List.map pp_pattern patterns)
             ^^ string "]}"
             ^^ string "}"
-        | Pat_Set patterns -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Set\",\"node_data\":{\"serde_tag\":\"PatternSetData\",\"patterns\":["
+        | Pat_Set patterns -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Set\",\"node_data\":{\"serde_tag\":\"PatSetData\",\"patterns\":["
             ^^ separate (string ",") (List.map pp_pattern patterns)
             ^^ string "]}"
             ^^ string "}"
-        | Pat_Range (expression1, expression2) -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"PatternRangeData\",\"from\":"
+        | Pat_Range (expression1, expression2) -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"PatRangeData\",\"expr1\":"
             ^^ pp_expr expression1
-            ^^ string ",\"to\":"
+            ^^ string ",\"expr2\":"
             ^^ pp_expr expression2
             ^^ string "}"
             ^^ string "}"
-        | Pat_Single expression -> string "{\"node_type\":\"Pattern\",\"node_subtype\":\"Single\",\"node_data\":{\"serde_tag\":\"PatternSingleData\",\"expr\":"
+        | Pat_Single expression -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Single\",\"node_data\":{\"serde_tag\":\"PatSingleData\",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}" }}
@@ -1453,7 +1455,7 @@ catch_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
 
 catcher :: 'Catcher_' ::=
     {{ pp es = match es with
-        | Catcher_Guarded (expression, statements) -> string "{\"node_type\":\"Catcher\",\"node_subtype\":\"Guarded\",\"node_data\":{\"expr\":"
+        | Catcher_Guarded (expression, statements) -> string "{\"node_type\":\"Catcher\",\"node_subtype\":\"Guarded\",\"node_data\":{\"serde_tag\":\"CatcherGuardedData\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
@@ -1534,7 +1536,7 @@ expr :: 'Expr_' ::=
             ^^ string "}"
         | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"serde_tag\":\"ExprImpDefData\",\"ty\":"
             ^^ pp_ty typ
-            ^^ string ",\"string\":"
+            ^^ string ",\"string_lit\":"
             ^^ (match opt_stringLiteral with
                 | Some s -> PPrint.string (Yojson.Safe.to_string (`String s))
                 | None -> string "null")
@@ -1554,27 +1556,27 @@ expr :: 'Expr_' ::=
             ^^ pp_expr expression2
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"ExprLitIntData\",\"intLit\":"
+        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"ExprLitIntData\",\"int_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String integerLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"ExprLitHexData\",\"hexLit\":"
+        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"ExprLitHexData\",\"hex_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String hexadecimalLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitReal\",\"node_data\":{\"serde_tag\":\"ExprLitRealData\",\"realLit\":"
+        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitReal\",\"node_data\":{\"serde_tag\":\"ExprLitRealData\",\"real_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String realLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"ExprLitBitsData\",\"bitsLit\":"
+        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"ExprLitBitsData\",\"bits_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String bitsLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"ExprLitMaskData\",\"maskLit\":"
+        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"ExprLitMaskData\",\"mask_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String maskLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitString\",\"node_data\":{\"serde_tag\":\"ExprLitStringData\",\"string\":"
+        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitString\",\"node_data\":{\"serde_tag\":\"ExprLitStringData\",\"string_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
             ^^ string "}"
             ^^ string "}" }}
@@ -1587,7 +1589,7 @@ conditional_expression :: 'Expr_' ::= {{ quotient-with expr }}
 
 e_elsif :: 'E_Elsif_' ::= {{ ocaml expr * expr }}
     {{ pp es = match es with 
-        | E_Elsif_Cond (expression1, expression2) -> string "{\"node_type\":\"E_Elsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"EElsifCondData\",\"expr1\":"
+        | E_Elsif_Cond (expression1, expression2) -> string "{\"node_type\":\"EElsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"EElsifCondData\",\"expr1\":"
             ^^ pp_expr expression1
             ^^ string ",\"expr2\":"
             ^^ pp_expr expression2

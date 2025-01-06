@@ -196,7 +196,7 @@ declarations :: 'Decls_' ::= {{ menhir-start }}
     {{ phantom }} {{ ocaml declaration list }}
     {{ pp-raw es = string "[ "^^ separate (string ";\n") (List.map pp_raw_declaration es) ^^ string " ]" }}
     % {{ pp es = separate (string "\n") (List.map pp_declaration es) }}
-    {{ pp es = string "{\"node_type\":\"Decls\",\"node_subtype\":\"Decls\",\"node_data\":{\"serde_tag\":\"DeclsData\",\"decls\":["
+    {{ pp es = string "{\"node_type\":\"Decls\",\"node_subtype\":\"Decls\",\"node_data\":{\"serde_tag\":\"Decls\",\"decls\":["
         ^^ separate (string ",") (List.map pp_declaration es)
         ^^ string "]}"
         ^^ string "}" }}
@@ -206,19 +206,19 @@ declarations :: 'Decls_' ::= {{ menhir-start }}
 declaration :: 'Decl_' ::=
     {{ aux _ l }}
     {{ pp es = match es with
-        | Decl_BuiltinType (identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"BuiltinType\",\"node_data\":{\"serde_tag\":\"DeclBuiltinTypeData\",\"ident\":\""
+        | Decl_BuiltinType (identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"BuiltinType\",\"node_data\":{\"serde_tag\":\"DeclBuiltinType\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Forward (identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Forward\",\"node_data\":{\"serde_tag\":\"DeclForwardData\",\"ident\":\""
+        | Decl_Forward (identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Forward\",\"node_data\":{\"serde_tag\":\"DeclForward\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Record (identifier, fields, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Record\",\"node_data\":{\"serde_tag\":\"DeclRecordData\",\"ident\":\""
+        | Decl_Record (identifier, fields, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Record\",\"node_data\":{\"serde_tag\":\"DeclRecord\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"fields\":["
             ^^ PPrint.separate_map (PPrint.string ",") 
@@ -233,7 +233,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Typedef (identifier, typ, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Typedef\",\"node_data\":{\"serde_tag\":\"DeclTypedefData\",\"ident\":\""
+        | Decl_Typedef (identifier, typ, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Typedef\",\"node_data\":{\"serde_tag\":\"DeclTypedef\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"ty\":"
             ^^ pp_ty typ
@@ -241,7 +241,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Enum (identifier, identifiers, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Enum\",\"node_data\":{\"serde_tag\":\"DeclEnumData\",\"ident\":\""
+        | Decl_Enum (identifier, identifiers, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Enum\",\"node_data\":{\"serde_tag\":\"DeclEnum\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"idents\":["
             ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
@@ -249,7 +249,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Var (typ, identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Var\",\"node_data\":{\"serde_tag\":\"DeclVarData\",\"ty\":"
+        | Decl_Var (typ, identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Var\",\"node_data\":{\"serde_tag\":\"DeclVar\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -257,7 +257,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Const (typ, identifier, expression, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Const\",\"node_data\":{\"serde_tag\":\"DeclConstData\",\"ty\":"
+        | Decl_Const (typ, identifier, expression, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Const\",\"node_data\":{\"serde_tag\":\"DeclConst\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -267,7 +267,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_BuiltinFunction (typ, identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"BuiltinFunction\",\"node_data\":{\"serde_tag\":\"DeclBuiltinFunctionData\",\"ty\":"
+        | Decl_BuiltinFunction (typ, identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"BuiltinFunction\",\"node_data\":{\"serde_tag\":\"DeclBuiltinFunction\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -284,7 +284,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_FunType (typ, identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"FunType\",\"node_data\":{\"serde_tag\":\"DeclFunTypeData\",\"ty\":"
+        | Decl_FunType (typ, identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"FunType\",\"node_data\":{\"serde_tag\":\"DeclFunType\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -301,7 +301,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_FunDefn (typ, identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"FunDefn\",\"node_data\":{\"serde_tag\":\"DeclFunDefnData\",\"ty\":"
+        | Decl_FunDefn (typ, identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"FunDefn\",\"node_data\":{\"serde_tag\":\"DeclFunDefn\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -320,7 +320,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_ProcType (identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ProcType\",\"node_data\":{\"serde_tag\":\"DeclProcTypeData\",\"ident\":\""
+        | Decl_ProcType (identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ProcType\",\"node_data\":{\"serde_tag\":\"DeclProcType\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"params\":["
             ^^ PPrint.separate_map (PPrint.string ",") 
@@ -335,7 +335,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_ProcDefn (identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ProcDefn\",\"node_data\":{\"serde_tag\":\"DeclProcDefnData\",\"ident\":\""
+        | Decl_ProcDefn (identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ProcDefn\",\"node_data\":{\"serde_tag\":\"DeclProcDefn\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"params\":["
             ^^ PPrint.separate_map (PPrint.string ",") 
@@ -352,7 +352,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_VarGetterType (typ, identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarGetterType\",\"node_data\":{\"serde_tag\":\"DeclVarGetterTypeData\",\"ty\":"
+        | Decl_VarGetterType (typ, identifier, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarGetterType\",\"node_data\":{\"serde_tag\":\"DeclVarGetterType\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -360,7 +360,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_VarGetterDefn (typ, identifier, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarGetterDefn\",\"node_data\":{\"serde_tag\":\"DeclVarGetterDefnData\",\"ty\":"
+        | Decl_VarGetterDefn (typ, identifier, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarGetterDefn\",\"node_data\":{\"serde_tag\":\"DeclVarGetterDefn\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -370,7 +370,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_ArrayGetterType (typ, identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArrayGetterType\",\"node_data\":{\"serde_tag\":\"DeclArrayGetterTypeData\",\"ty\":"
+        | Decl_ArrayGetterType (typ, identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArrayGetterType\",\"node_data\":{\"serde_tag\":\"DeclArrayGetterType\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -387,7 +387,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_ArrayGetterDefn (typ, identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArrayGetterDefn\",\"node_data\":{\"serde_tag\":\"DeclArrayGetterDefnData\",\"ty\":"
+        | Decl_ArrayGetterDefn (typ, identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArrayGetterDefn\",\"node_data\":{\"serde_tag\":\"DeclArrayGetterDefn\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -406,7 +406,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_VarSetterType (identifier1, typ, identifier2, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarSetterType\",\"node_data\":{\"serde_tag\":\"DeclVarSetterTypeData\",\"ident1\":\""
+        | Decl_VarSetterType (identifier1, typ, identifier2, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarSetterType\",\"node_data\":{\"serde_tag\":\"DeclVarSetterType\",\"ident1\":\""
             ^^ pp_ident identifier1
             ^^ string "\",\"ty\":"
             ^^ pp_ty typ
@@ -416,7 +416,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_VarSetterDefn (identifier1, typ, identifier2, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarSetterDefn\",\"node_data\":{\"serde_tag\":\"DeclVarSetterDefnData\",\"ident1\":\""
+        | Decl_VarSetterDefn (identifier1, typ, identifier2, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"VarSetterDefn\",\"node_data\":{\"serde_tag\":\"DeclVarSetterDefn\",\"ident1\":\""
             ^^ pp_ident identifier1
             ^^ string "\",\"ty\":"
             ^^ pp_ty typ
@@ -428,7 +428,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_ArraySetterType (identifier1, parameters, typ, identifier2, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArraySetterType\",\"node_data\":{\"serde_tag\":\"DeclArraySetterTypeData\",\"ident1\":\""
+        | Decl_ArraySetterType (identifier1, parameters, typ, identifier2, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArraySetterType\",\"node_data\":{\"serde_tag\":\"DeclArraySetterType\",\"ident1\":\""
             ^^ pp_ident identifier1
             ^^ string "\",\"params\":["
             ^^ separate (string ",") (List.map (fun parameter -> pp_sformal parameter) parameters)
@@ -440,7 +440,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_ArraySetterDefn (identifier1, parameters, typ, identifier2, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArraySetterDefn\",\"node_data\":{\"serde_tag\":\"DeclArraySetterDefnData\",\"ident1\":\""
+        | Decl_ArraySetterDefn (identifier1, parameters, typ, identifier2, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"ArraySetterDefn\",\"node_data\":{\"serde_tag\":\"DeclArraySetterDefn\",\"ident1\":\""
             ^^ pp_ident identifier1
             ^^ string "\",\"params\":["
             ^^ separate (string ",") (List.map (fun parameter -> pp_sformal parameter) parameters)
@@ -454,7 +454,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_InstructionDefn (identifier, encodings, opt_statements, boolean, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"InstructionDefn\",\"node_data\":{\"serde_tag\":\"DeclInstructionDefnData\",\"ident\":\""
+        | Decl_InstructionDefn (identifier, encodings, opt_statements, boolean, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"InstructionDefn\",\"node_data\":{\"serde_tag\":\"DeclInstructionDefn\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"encodings\":["
             ^^ separate (string ",") (List.map pp_encoding encodings)
@@ -470,7 +470,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_DecoderDefn (identifier, decode_case, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"DecoderDefn\",\"node_data\":{\"serde_tag\":\"DeclDecoderDefnData\",\"ident\":\""
+        | Decl_DecoderDefn (identifier, decode_case, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"DecoderDefn\",\"node_data\":{\"serde_tag\":\"DeclDecoderDefn\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"decode_case\":"
             ^^ pp_decode_case decode_case
@@ -478,7 +478,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Operator1 (unary_operator, identifiers, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Operator1\",\"node_data\":{\"serde_tag\":\"DeclOperator1Data\",\"unop\":"
+        | Decl_Operator1 (unary_operator, identifiers, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Operator1\",\"node_data\":{\"serde_tag\":\"DeclOperator1\",\"unop\":"
             ^^ pp_unop unary_operator
             ^^ string ",\"idents\":["
             ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
@@ -486,7 +486,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Operator2 (binary_operator, identifiers, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Operator2\",\"node_data\":{\"serde_tag\":\"DeclOperator2Data\",\"binop\":"
+        | Decl_Operator2 (binary_operator, identifiers, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Operator2\",\"node_data\":{\"serde_tag\":\"DeclOperator2\",\"binop\":"
             ^^ pp_binop binary_operator
             ^^ string ",\"idents\":["
             ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
@@ -494,7 +494,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_NewEventDefn (identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"NewEventDefn\",\"node_data\":{\"serde_tag\":\"DeclNewEventDefnData\",\"ident\":\""
+        | Decl_NewEventDefn (identifier, parameters, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"NewEventDefn\",\"node_data\":{\"serde_tag\":\"DeclNewEventDefn\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"params\":["
             ^^ PPrint.separate_map (PPrint.string ",") 
@@ -509,7 +509,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_EventClause (identifier, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"EventClause\",\"node_data\":{\"serde_tag\":\"DeclEventClauseData\",\"ident\":\""
+        | Decl_EventClause (identifier, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"EventClause\",\"node_data\":{\"serde_tag\":\"DeclEventClause\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"stmts\":["
             ^^ separate (string ",") (List.map (fun stmt -> pp_stmt stmt) statements)
@@ -517,7 +517,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_NewMapDefn (typ, identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"NewMapDefn\",\"node_data\":{\"serde_tag\":\"DeclNewMapDefnData\",\"ty\":"
+        | Decl_NewMapDefn (typ, identifier, parameters, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"NewMapDefn\",\"node_data\":{\"serde_tag\":\"DeclNewMapDefn\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -536,7 +536,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_MapClause (identifier, mapfields, opt_expression, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"MapClause\",\"node_data\":{\"serde_tag\":\"DeclMapClauseData\",\"ident\":\""
+        | Decl_MapClause (identifier, mapfields, opt_expression, statements, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"MapClause\",\"node_data\":{\"serde_tag\":\"DeclMapClause\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"mapfields\":["
             ^^ separate (string ",") (List.map (fun mapfield -> pp_mapfield mapfield) mapfields)
@@ -550,7 +550,7 @@ declaration :: 'Decl_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Decl_Config (typ, identifier, expression, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Config\",\"node_data\":{\"serde_tag\":\"DeclConfigData\",\"ty\":"
+        | Decl_Config (typ, identifier, expression, location) -> string "{\"node_type\":\"Decl\",\"node_subtype\":\"Config\",\"node_data\":{\"serde_tag\":\"DeclConfig\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -598,11 +598,11 @@ variable_declaration :: 'Decl_' ::= {{ quotient-with declaration }}
 
 ixtype :: 'Index_' ::=
     {{ pp es = match es with
-        | Index_Enum identifier -> string "{\"node_type\":\"Index\",\"node_subtype\":\"Enum\",\"node_data\":{\"serde_tag\":\"IndexEnumData\",\"ident\":\""
+        | Index_Enum identifier -> string "{\"node_type\":\"Index\",\"node_subtype\":\"Enum\",\"node_data\":{\"serde_tag\":\"IndexEnum\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Index_Range (expression1, expression2) -> string "{\"node_type\":\"Index\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"IndexRangeData\",\"expr1\":"
+        | Index_Range (expression1, expression2) -> string "{\"node_type\":\"Index\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"IndexRange\",\"expr1\":"
             ^^ pp_expr expression1
             ^^ string ",\"expr2\":"
             ^^ pp_expr expression2
@@ -646,13 +646,13 @@ setter_declaration :: 'Decl_' ::= {{ quotient-with declaration }}
 
 sformal :: 'Formal_' ::=
     {{ pp es = match es with
-        | Formal_In (typ, identifier) -> string "{\"node_type\":\"Formal\",\"node_subtype\":\"In\",\"node_data\":{\"serde_tag\":\"FormalInData\",\"ty\":"
+        | Formal_In (typ, identifier) -> string "{\"node_type\":\"Formal\",\"node_subtype\":\"In\",\"node_data\":{\"serde_tag\":\"FormalIn\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Formal_InOut (typ, identifier) -> string "{\"node_type\":\"Formal\",\"node_subtype\":\"InOut\",\"node_data\":{\"serde_tag\":\"FormalInOutData\",\"ty\":"
+        | Formal_InOut (typ, identifier) -> string "{\"node_type\":\"Formal\",\"node_subtype\":\"InOut\",\"node_data\":{\"serde_tag\":\"FormalInOut\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -677,7 +677,7 @@ instruction_definition :: 'Decl_' ::= {{ quotient-with declaration }}
 encoding :: 'Encoding_' ::=
     {{ aux _ l }}
     {{ pp es = match es with
-        | Encoding_Block (identifier1, identifier2, instruction_fields, opcode_value, expression, unpredictables, statements, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"Block\",\"node_data\":{\"serde_tag\":\"EncodingBlockData\",\"ident1\":\""
+        | Encoding_Block (identifier1, identifier2, instruction_fields, opcode_value, expression, unpredictables, statements, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"Block\",\"node_data\":{\"serde_tag\":\"EncodingBlock\",\"ident1\":\""
             ^^ pp_ident identifier1
             ^^ string "\",\"ident2\":\""
             ^^ pp_ident identifier2
@@ -730,7 +730,7 @@ opt_postdecode :: 'OptPostDecode_' ::=
 
 instr_field :: 'IField_' ::=
     {{ pp es = match es with
-        | IField_Field (identifier, int1, int2) -> string "{\"node_type\":\"IField\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"IFieldData\",\"ident\":\""
+        | IField_Field (identifier, int1, int2) -> string "{\"node_type\":\"IField\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"IField\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"int1\":"
             ^^ PPrint.string (string_of_int int1)
@@ -750,11 +750,11 @@ offset :: 'Offset_' ::=
 
 opcode_value :: 'Opcode_' ::=
     {{ pp es = match es with
-        | Opcode_Bits bits -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"OpcodeBitsData\",\"bits_lit\":\""
+        | Opcode_Bits bits -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"OpcodeBits\",\"bits_lit\":\""
             ^^ string bits
             ^^ string "\"}"
             ^^ string "}"
-        | Opcode_Mask mask -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Mask\",\"node_data\":{\"serde_tag\":\"OpcodeMaskData\",\"bits_lit\":\""
+        | Opcode_Mask mask -> string "{\"node_type\":\"Opcode\",\"node_subtype\":\"Mask\",\"node_data\":{\"serde_tag\":\"OpcodeMask\",\"bits_lit\":\""
             ^^ string mask
             ^^ string "\"}"
             ^^ string "}" }}
@@ -830,7 +830,7 @@ optmapcond :: 'MapCond_' ::=
 
 mapfield :: 'MapField_' ::=
     {{ pp es = match es with
-        | MapField_Field (identifier, pattern) -> string "{\"node_type\":\"MapField\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"MapFieldData\",\"ident\":\""
+        | MapField_Field (identifier, pattern) -> string "{\"node_type\":\"MapField\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"MapField\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"pattern\":"
             ^^ string "\"placeholder\""
@@ -864,25 +864,25 @@ tident :: 'QIdent_' ::= {{ quotient-with qualident }}
 
 ty :: 'Type_' ::=
     {{ pp es = match es with
-        | Type_Constructor identifier -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Constructor\",\"node_data\":{\"serde_tag\":\"TypeConstructorData\",\"ident\":\""
+        | Type_Constructor identifier -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Constructor\",\"node_data\":{\"serde_tag\":\"TypeConstructor\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Type_Bits expression -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"TypeBitsData\",\"expr\":"
+        | Type_Bits expression -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"TypeBits\",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}"
-        | Type_App (identifier, expressions) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"App\",\"node_data\":{\"serde_tag\":\"TypeAppData\",\"ident\":\""
+        | Type_App (identifier, expressions) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"App\",\"node_data\":{\"serde_tag\":\"TypeApp\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"exprs\":["
             ^^ separate (string ",") (List.map (fun expr -> pp_expr expr) expressions)
             ^^ string "]}"
             ^^ string "}"
-        | Type_OfExpr expression -> string "{\"node_type\":\"Type\",\"node_subtype\":\"OfExpr\",\"node_data\":{\"serde_tag\":\"TypeOfExprData\",\"expr\":"
+        | Type_OfExpr expression -> string "{\"node_type\":\"Type\",\"node_subtype\":\"OfExpr\",\"node_data\":{\"serde_tag\":\"TypeOfExpr\",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}"
-        | Type_Register (integerLiteral, fields) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Register\",\"node_data\":{\"serde_tag\":\"TypeRegisterData\",\"int_lit\":\""
+        | Type_Register (integerLiteral, fields) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Register\",\"node_data\":{\"serde_tag\":\"TypeRegister\",\"int_lit\":\""
             ^^ string integerLiteral
             ^^ string "\",\"fields\":["
             ^^ separate (string ",") 
@@ -895,13 +895,13 @@ ty :: 'Type_' ::=
                     fields)
             ^^ string "]}"
             ^^ string "}"
-        | Type_Array (indexType, typ) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"TypeArrayData\",\"ix_type\":"
+        | Type_Array (indexType, typ) -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"TypeArray\",\"ix_type\":"
             ^^ pp_ixtype indexType
             ^^ string ",\"ty\":"
             ^^ pp_ty typ
             ^^ string "}"
             ^^ string "}"
-        | Type_Tuple typs -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"TypeTupleData\",\"tys\":["
+        | Type_Tuple typs -> string "{\"node_type\":\"Type\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"TypeTuple\",\"tys\":["
             ^^ separate (string ",") (List.map pp_ty typs)
             ^^ string "]}"
             ^^ string "}" }}
@@ -935,7 +935,7 @@ regfield :: 'RegField_' ::=
 stmt :: 'Stmt_' ::=
     {{ aux _ l }}
     {{ pp es = match es with
-        | Stmt_VarDeclsNoInit (typ, identifiers, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"VarDeclsNoInit\",\"node_data\":{\"serde_tag\":\"StmtVarDeclsNoInitData\",\"ty\":"
+        | Stmt_VarDeclsNoInit (typ, identifiers, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"VarDeclsNoInit\",\"node_data\":{\"serde_tag\":\"StmtVarDeclsNoInit\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"idents\":["
             ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
@@ -943,7 +943,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_VarDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"VarDecl\",\"node_data\":{\"serde_tag\":\"StmtVarDeclData\",\"ty\":"
+        | Stmt_VarDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"VarDecl\",\"node_data\":{\"serde_tag\":\"StmtVarDecl\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -953,7 +953,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_ConstDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ConstDecl\",\"node_data\":{\"serde_tag\":\"StmtConstDeclData\",\"ty\":"
+        | Stmt_ConstDecl (typ, identifier, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ConstDecl\",\"node_data\":{\"serde_tag\":\"StmtConstDecl\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
@@ -963,7 +963,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Assign (left_expression, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Assign\",\"node_data\":{\"serde_tag\":\"StmtAssignData\",\"l_expr\":"
+        | Stmt_Assign (left_expression, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Assign\",\"node_data\":{\"serde_tag\":\"StmtAssign\",\"l_expr\":"
             ^^ pp_lexpr left_expression
             ^^ string ",\"expr\":"
             ^^ pp_expr expression
@@ -971,71 +971,71 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_FunReturn (expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"FunReturn\",\"node_data\":{\"serde_tag\":\"StmtFunReturnData\",\"expr\":"
+        | Stmt_FunReturn (expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"FunReturn\",\"node_data\":{\"serde_tag\":\"StmtFunReturn\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_ProcReturn (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ProcReturn\",\"node_data\":{\"serde_tag\":\"StmtProcReturnData\",\"l\":"
+        | Stmt_ProcReturn (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ProcReturn\",\"node_data\":{\"serde_tag\":\"StmtProcReturn\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Assert (expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Assert\",\"node_data\":{\"serde_tag\":\"StmtAssertData\",\"expr\":"
+        | Stmt_Assert (expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Assert\",\"node_data\":{\"serde_tag\":\"StmtAssert\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Unpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Unpred\",\"node_data\":{\"serde_tag\":\"StmtUnpredData\",\"l\":"
+        | Stmt_Unpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Unpred\",\"node_data\":{\"serde_tag\":\"StmtUnpred\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_ConstrainedUnpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ConstrainedUnpred\",\"node_data\":{\"serde_tag\":\"StmtConstrainedUnpredData\",\"l\":"
+        | Stmt_ConstrainedUnpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ConstrainedUnpred\",\"node_data\":{\"serde_tag\":\"StmtConstrainedUnpred\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_ImpDef (identifier, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"serde_tag\":\"StmtImpDefData\",\"ident\":\""
+        | Stmt_ImpDef (identifier, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"serde_tag\":\"StmtImpDef\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Undefined (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Undefined\",\"node_data\":{\"serde_tag\":\"StmtUndefinedData\",\"l\":"
+        | Stmt_Undefined (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Undefined\",\"node_data\":{\"serde_tag\":\"StmtUndefined\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_ExceptionTaken (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ExceptionTaken\",\"node_data\":{\"serde_tag\":\"StmtExceptionTakenData\",\"l\":"
+        | Stmt_ExceptionTaken (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"ExceptionTaken\",\"node_data\":{\"serde_tag\":\"StmtExceptionTaken\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_Unpred\",\"node_data\":{\"serde_tag\":\"StmtDepUnpredData\",\"l\":"
+        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_Unpred\",\"node_data\":{\"serde_tag\":\"StmtDepUnpred\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":{\"serde_tag\":\"StmtDepImpDefData\",\"string_lit\":"
+        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":{\"serde_tag\":\"StmtDepImpDef\",\"string_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
             ^^ string ",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_Undefined\",\"node_data\":{\"serde_tag\":\"StmtDepUndefinedData\",\"l\":"
+        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_Undefined\",\"node_data\":{\"serde_tag\":\"StmtDepUndefined\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_See (expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"See\",\"node_data\":{\"serde_tag\":\"StmtSeeData\",\"expr\":"
+        | Stmt_See (expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"See\",\"node_data\":{\"serde_tag\":\"StmtSee\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Throw (identifier, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Throw\",\"node_data\":{\"serde_tag\":\"StmtThrowData\",\"ident\":\""
+        | Stmt_Throw (identifier, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Throw\",\"node_data\":{\"serde_tag\":\"StmtThrow\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_DecodeExecute (identifier, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"DecodeExecute\",\"node_data\":{\"serde_tag\":\"StmtDecodeExecuteData\",\"ident\":\""
+        | Stmt_DecodeExecute (identifier, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"DecodeExecute\",\"node_data\":{\"serde_tag\":\"StmtDecodeExecute\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"expr\":"
             ^^ pp_expr expression
@@ -1043,7 +1043,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_TCall (identifier, expressions1, expressions2, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"TCall\",\"node_data\":{\"serde_tag\":\"StmtTCallData\",\"ident\":\""
+        | Stmt_TCall (identifier, expressions1, expressions2, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"TCall\",\"node_data\":{\"serde_tag\":\"StmtTCall\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"exprs1\":["
             ^^ separate (string ",") (List.map (fun expr -> pp_expr expr) expressions1)
@@ -1053,7 +1053,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_If (expression, statements1, s_elsifs, statements2, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"If\",\"node_data\":{\"serde_tag\":\"StmtIfData\",\"expr\":"
+        | Stmt_If (expression, statements1, s_elsifs, statements2, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"If\",\"node_data\":{\"serde_tag\":\"StmtIf\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"stmts1\":["
             ^^ separate (string ",") (List.map pp_stmt statements1)
@@ -1065,7 +1065,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Case (expression, alternatives, opt_statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Case\",\"node_data\":{\"serde_tag\":\"StmtCaseData\",\"expr\":"
+        | Stmt_Case (expression, alternatives, opt_statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Case\",\"node_data\":{\"serde_tag\":\"StmtCase\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"alts\":["
             ^^ separate (string ",") (List.map pp_alt alternatives)
@@ -1077,7 +1077,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_For (identifier, expression1, direction, expression2, statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"For\",\"node_data\":{\"serde_tag\":\"StmtForData\",\"ident\":\""
+        | Stmt_For (identifier, expression1, direction, expression2, statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"For\",\"node_data\":{\"serde_tag\":\"StmtFor\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"expr1\":"
             ^^ pp_expr expression1
@@ -1091,7 +1091,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_While (expression, statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"While\",\"node_data\":{\"serde_tag\":\"StmtWhileData\",\"expr\":"
+        | Stmt_While (expression, statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"While\",\"node_data\":{\"serde_tag\":\"StmtWhile\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
@@ -1099,7 +1099,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Repeat (statements, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Repeat\",\"node_data\":{\"serde_tag\":\"StmtRepeatData\",\"stmts\":["
+        | Stmt_Repeat (statements, expression, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Repeat\",\"node_data\":{\"serde_tag\":\"StmtRepeat\",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
             ^^ string "],\"expr\":"
             ^^ pp_expr expression
@@ -1107,7 +1107,7 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Try (statements, identifier, catchers, opt_statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Try\",\"node_data\":{\"serde_tag\":\"StmtTryData\",\"stmts\":["
+        | Stmt_Try (statements, identifier, catchers, opt_statements, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Try\",\"node_data\":{\"serde_tag\":\"StmtTry\",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
             ^^ string "],\"ident\":\""
             ^^ pp_ident identifier
@@ -1203,43 +1203,43 @@ assignment_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
 lexpr :: 'LExpr_' ::=
     {{ pp es = match es with
     | LExpr_Wildcard -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Wildcard\",\"node_data\":null}"
-    | LExpr_Var identifier -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Var\",\"node_data\":{\"serde_tag\":\"LExprVarData\",\"ident\":\""
+    | LExpr_Var identifier -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Var\",\"node_data\":{\"serde_tag\":\"LExprVar\",\"ident\":\""
         ^^ pp_ident identifier
         ^^ string "\"}"
         ^^ string "}"
-    | LExpr_Field (left_expression, identifier) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"LExprFieldData\",\"l_expr\":"
+    | LExpr_Field (left_expression, identifier) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"LExprField\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"ident\":\""
         ^^ pp_ident identifier
         ^^ string "\"}"
         ^^ string "}"
-    | LExpr_Fields (left_expression, identifiers) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Fields\",\"node_data\":{\"serde_tag\":\"LExprFieldsData\",\"l_expr\":"
+    | LExpr_Fields (left_expression, identifiers) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Fields\",\"node_data\":{\"serde_tag\":\"LExprFields\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"idents\":["
         ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_Slices (left_expression, slices) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Slices\",\"node_data\":{\"serde_tag\":\"LExprSlicesData\",\"l_expr\":"
+    | LExpr_Slices (left_expression, slices) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Slices\",\"node_data\":{\"serde_tag\":\"LExprSlices\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"slices\":["
         ^^ separate (string ",") (List.map pp_slice slices)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_BitTuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"BitTuple\",\"node_data\":{\"serde_tag\":\"LExprBitTupleData\",\"l_exprs\":["
+    | LExpr_BitTuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"BitTuple\",\"node_data\":{\"serde_tag\":\"LExprBitTuple\",\"l_exprs\":["
         ^^ separate (string ",") (List.map pp_lexpr left_expressions)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_Tuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"LExprTupleData\",\"l_exprs\":["
+    | LExpr_Tuple left_expressions -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"LExprTuple\",\"l_exprs\":["
         ^^ separate (string ",") (List.map pp_lexpr left_expressions)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_Array (left_expression, expression) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"LExprArrayData\",\"l_expr\":"
+    | LExpr_Array (left_expression, expression) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"LExprArray\",\"l_expr\":"
         ^^ pp_lexpr left_expression
         ^^ string ",\"expr\":"
         ^^ pp_expr expression
         ^^ string "}"
         ^^ string "}"
-    | LExpr_Write (identifier, expressions1, expressions2) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Write\",\"node_data\":{\"serde_tag\":\"LExprWriteData\",\"ident\":\""
+    | LExpr_Write (identifier, expressions1, expressions2) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"Write\",\"node_data\":{\"serde_tag\":\"LExprWrite\",\"ident\":\""
         ^^ pp_ident identifier
         ^^ string "\",\"exprs1\":["
         ^^ separate (string ",") (List.map pp_expr expressions1)
@@ -1247,7 +1247,7 @@ lexpr :: 'LExpr_' ::=
         ^^ separate (string ",") (List.map pp_expr expressions2)
         ^^ string "]}"
         ^^ string "}"
-    | LExpr_ReadWrite (identifier1, identifier2, expressions1, expressions2) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"ReadWrite\",\"node_data\":{\"serde_tag\":\"LExprReadWriteData\",\"ident1\":\""
+    | LExpr_ReadWrite (identifier1, identifier2, expressions1, expressions2) -> string "{\"node_type\":\"LExpr\",\"node_subtype\":\"ReadWrite\",\"node_data\":{\"serde_tag\":\"LExprReadWrite\",\"ident1\":\""
         ^^ pp_ident identifier1
         ^^ string "\",\"ident2\":\""
         ^^ pp_ident identifier2
@@ -1323,7 +1323,7 @@ conditional_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
 
 s_elsif :: 'S_Elsif_' ::=
     {{ pp es = match es with
-        | S_Elsif_Cond (expression, statements) -> string "{\"node_type\":\"SElsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"SElsifCondData\",\"expr\":"
+        | S_Elsif_Cond (expression, statements) -> string "{\"node_type\":\"SElsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"SElsifCond\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
@@ -1346,7 +1346,7 @@ optional_else :: 'S_Else' ::=
 
 alt :: 'Alt_' ::=
     {{ pp es = match es with
-    | Alt_Alt (patterns, opt_expression, statements) -> string "{\"node_type\":\"Alt\",\"node_subtype\":\"Alt\",\"node_data\":{\"serde_tag\":\"AltData\",\"patterns\":["
+    | Alt_Alt (patterns, opt_expression, statements) -> string "{\"node_type\":\"Alt\",\"node_subtype\":\"Alt\",\"node_data\":{\"serde_tag\":\"Alt\",\"patterns\":["
         ^^ separate (string ",") (List.map pp_pattern patterns)
         ^^ string "],\"opt_expr\":"
         ^^ (match opt_expression with
@@ -1378,42 +1378,42 @@ opt_altcond :: 'AltCond_' ::= {{ ocaml expr option }}
 
 pattern :: 'Pat_' ::=
     {{ pp es = match es with
-        | Pat_LitInt integerLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"PatLitIntData\",\"int_lit\":"
+        | Pat_LitInt integerLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"PatLitInt\",\"int_lit\":"
             ^^ string (Yojson.Safe.to_string (`String integerLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_LitHex hexadecimalLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"PatLitHexData\",\"hex_lit\":"
+        | Pat_LitHex hexadecimalLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"PatLitHex\",\"hex_lit\":"
             ^^ string (Yojson.Safe.to_string (`String hexadecimalLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_LitBits bitsLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"PatLitBitsData\",\"bits_lit\":"
+        | Pat_LitBits bitsLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"PatLitBits\",\"bits_lit\":"
             ^^ string (Yojson.Safe.to_string (`String bitsLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_LitMask maskLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"PatLitMaskData\",\"mask_lit\":"
+        | Pat_LitMask maskLiteral -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"PatLitMask\",\"mask_lit\":"
             ^^ string (Yojson.Safe.to_string (`String maskLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Pat_Const identifier -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Const\",\"node_data\":{\"serde_tag\":\"PatConstData\",\"ident\":\""
+        | Pat_Const identifier -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Const\",\"node_data\":{\"serde_tag\":\"PatConst\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
         | Pat_Wildcard -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Wildcard\",\"node_data\":null}"
-        | Pat_Tuple patterns -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"PatTupleData\",\"patterns\":["
+        | Pat_Tuple patterns -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"PatTuple\",\"patterns\":["
             ^^ separate (string ",") (List.map pp_pattern patterns)
             ^^ string "]}"
             ^^ string "}"
-        | Pat_Set patterns -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Set\",\"node_data\":{\"serde_tag\":\"PatSetData\",\"patterns\":["
+        | Pat_Set patterns -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Set\",\"node_data\":{\"serde_tag\":\"PatSet\",\"patterns\":["
             ^^ separate (string ",") (List.map pp_pattern patterns)
             ^^ string "]}"
             ^^ string "}"
-        | Pat_Range (expression1, expression2) -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"PatRangeData\",\"expr1\":"
+        | Pat_Range (expression1, expression2) -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Range\",\"node_data\":{\"serde_tag\":\"PatRange\",\"expr1\":"
             ^^ pp_expr expression1
             ^^ string ",\"expr2\":"
             ^^ pp_expr expression2
             ^^ string "}"
             ^^ string "}"
-        | Pat_Single expression -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Single\",\"node_data\":{\"serde_tag\":\"PatSingleData\",\"expr\":"
+        | Pat_Single expression -> string "{\"node_type\":\"Pat\",\"node_subtype\":\"Single\",\"node_data\":{\"serde_tag\":\"PatSingle\",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}" }}
@@ -1455,7 +1455,7 @@ catch_stmt :: 'Stmt_' ::= {{ quotient-with stmt }}
 
 catcher :: 'Catcher_' ::=
     {{ pp es = match es with
-        | Catcher_Guarded (expression, statements) -> string "{\"node_type\":\"Catcher\",\"node_subtype\":\"Guarded\",\"node_data\":{\"serde_tag\":\"CatcherGuardedData\",\"expr\":"
+        | Catcher_Guarded (expression, statements) -> string "{\"node_type\":\"Catcher\",\"node_subtype\":\"Guarded\",\"node_data\":{\"serde_tag\":\"CatcherGuarded\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"stmts\":["
             ^^ separate (string ",") (List.map pp_stmt statements)
@@ -1469,7 +1469,7 @@ catcher :: 'Catcher_' ::=
 
 expr :: 'Expr_' ::=
     {{ pp es = match es with
-        | Expr_If (if_cond_expression, if_body_expression, e_elsifs, else_body_expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"If\",\"node_data\":{\"serde_tag\":\"ExprIfData\",\"if_cond_expr\":"
+        | Expr_If (if_cond_expression, if_body_expression, e_elsifs, else_body_expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"If\",\"node_data\":{\"serde_tag\":\"ExprIf\",\"if_cond_expr\":"
             ^^ pp_expr if_cond_expression
             ^^ string ",\"if_body_expr\":"
             ^^ pp_expr if_body_expression
@@ -1479,7 +1479,7 @@ expr :: 'Expr_' ::=
             ^^ pp_expr else_body_expression
             ^^ string "}"
             ^^ string "}"
-        | Expr_Binop (left_expression, binary_operator, right_expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Binop\",\"node_data\":{\"serde_tag\":\"ExprBinopData\",\"l_expr\":"
+        | Expr_Binop (left_expression, binary_operator, right_expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Binop\",\"node_data\":{\"serde_tag\":\"ExprBinop\",\"l_expr\":"
             ^^ pp_expr left_expression
             ^^ string ",\"binop\":"
             ^^ pp_binop binary_operator
@@ -1487,54 +1487,54 @@ expr :: 'Expr_' ::=
             ^^ pp_expr right_expression
             ^^ string "}"
             ^^ string "}"
-        | Expr_Unop (unary_operator, expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Unop\",\"node_data\":{\"serde_tag\":\"ExprUnopData\",\"unop\":"
+        | Expr_Unop (unary_operator, expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Unop\",\"node_data\":{\"serde_tag\":\"ExprUnop\",\"unop\":"
             ^^ pp_unop unary_operator
             ^^ string ",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}"
-        | Expr_Field (expression, identifier) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"ExprFieldData\",\"expr\":"
+        | Expr_Field (expression, identifier) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Field\",\"node_data\":{\"serde_tag\":\"ExprField\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Expr_Fields (expression, identifiers) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Fields\",\"node_data\":{\"serde_tag\":\"ExprFieldsData\",\"expr\":"
+        | Expr_Fields (expression, identifiers) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Fields\",\"node_data\":{\"serde_tag\":\"ExprFields\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"idents\":["
             ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
             ^^ string "]}"
             ^^ string "}"
-        | Expr_Slices (expression, slices) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Slices\",\"node_data\":{\"serde_tag\":\"ExprSlicesData\",\"expr\":"
+        | Expr_Slices (expression, slices) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Slices\",\"node_data\":{\"serde_tag\":\"ExprSlices\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"slices\":["
             ^^ separate (string ",") (List.map pp_slice slices)
             ^^ string "]}"
             ^^ string "}"
-        | Expr_In (expression, pattern) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"In\",\"node_data\":{\"serde_tag\":\"ExprInData\",\"expr\":"
+        | Expr_In (expression, pattern) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"In\",\"node_data\":{\"serde_tag\":\"ExprIn\",\"expr\":"
             ^^ pp_expr expression
             ^^ string ",\"pattern\":"
             ^^ pp_pattern pattern
             ^^ string "}"
             ^^ string "}"
-        | Expr_Var (identifier) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Var\",\"node_data\":{\"serde_tag\":\"ExprVarData\",\"ident\":\""
+        | Expr_Var (identifier) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Var\",\"node_data\":{\"serde_tag\":\"ExprVar\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\"}"
             ^^ string "}"
-        | Expr_Parens (expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Parens\",\"node_data\":{\"serde_tag\":\"ExprParensData\",\"expr\":"
+        | Expr_Parens (expression) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Parens\",\"node_data\":{\"serde_tag\":\"ExprParens\",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}"
         | Expr_Tuple (expressions) -> 
-            string "{\"node_type\":\"Expr\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"ExprTupleData\",\"exprs\":["
+            string "{\"node_type\":\"Expr\",\"node_subtype\":\"Tuple\",\"node_data\":{\"serde_tag\":\"ExprTuple\",\"exprs\":["
             ^^ separate (string ",") (List.map pp_expr expressions)
             ^^ string "]}"
             ^^ string "}"
-        | Expr_Unknown (typ) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Unknown\",\"node_data\":{\"serde_tag\":\"ExprUnknownData\",\"ty\":"
+        | Expr_Unknown (typ) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Unknown\",\"node_data\":{\"serde_tag\":\"ExprUnknown\",\"ty\":"
             ^^ pp_ty typ
             ^^ string "}"
             ^^ string "}"
-        | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"serde_tag\":\"ExprImpDefData\",\"ty\":"
+        | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"serde_tag\":\"ExprImpDef\",\"ty\":"
             ^^ pp_ty typ
             ^^ string ",\"string_lit\":"
             ^^ (match opt_stringLiteral with
@@ -1542,7 +1542,7 @@ expr :: 'Expr_' ::=
                 | None -> string "null")
             ^^ string "}"
             ^^ string "}"
-        | Expr_TApply (identifier, expressions1, expressions2) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"TApply\",\"node_data\":{\"serde_tag\":\"ExprTApplyData\",\"ident\":\""
+        | Expr_TApply (identifier, expressions1, expressions2) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"TApply\",\"node_data\":{\"serde_tag\":\"ExprTApply\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"exprs1\":["
             ^^ separate (string ",") (List.map pp_expr expressions1)
@@ -1550,33 +1550,33 @@ expr :: 'Expr_' ::=
             ^^ separate (string ",") (List.map pp_expr expressions2)
             ^^ string "]}"
             ^^ string "}"
-        | Expr_Array (expression1, expression2) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"ExprArrayData\",\"expr1\":"
+        | Expr_Array (expression1, expression2) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"Array\",\"node_data\":{\"serde_tag\":\"ExprArray\",\"expr1\":"
             ^^ pp_expr expression1
             ^^ string ",\"expr2\":"
             ^^ pp_expr expression2
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"ExprLitIntData\",\"int_lit\":"
+        | Expr_LitInt (integerLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitInt\",\"node_data\":{\"serde_tag\":\"ExprLitInt\",\"int_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String integerLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"ExprLitHexData\",\"hex_lit\":"
+        | Expr_LitHex (hexadecimalLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitHex\",\"node_data\":{\"serde_tag\":\"ExprLitHex\",\"hex_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String hexadecimalLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitReal\",\"node_data\":{\"serde_tag\":\"ExprLitRealData\",\"real_lit\":"
+        | Expr_LitReal (realLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitReal\",\"node_data\":{\"serde_tag\":\"ExprLitReal\",\"real_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String realLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"ExprLitBitsData\",\"bits_lit\":"
+        | Expr_LitBits (bitsLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitBits\",\"node_data\":{\"serde_tag\":\"ExprLitBits\",\"bits_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String bitsLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"ExprLitMaskData\",\"mask_lit\":"
+        | Expr_LitMask (maskLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitMask\",\"node_data\":{\"serde_tag\":\"ExprLitMask\",\"mask_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String maskLiteral))
             ^^ string "}"
             ^^ string "}"
-        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitString\",\"node_data\":{\"serde_tag\":\"ExprLitStringData\",\"string_lit\":"
+        | Expr_LitString (stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"LitString\",\"node_data\":{\"serde_tag\":\"ExprLitString\",\"string_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
             ^^ string "}"
             ^^ string "}" }}
@@ -1589,7 +1589,7 @@ conditional_expression :: 'Expr_' ::= {{ quotient-with expr }}
 
 e_elsif :: 'E_Elsif_' ::= {{ ocaml expr * expr }}
     {{ pp es = match es with 
-        | E_Elsif_Cond (expression1, expression2) -> string "{\"node_type\":\"EElsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"EElsifCondData\",\"expr1\":"
+        | E_Elsif_Cond (expression1, expression2) -> string "{\"node_type\":\"EElsif\",\"node_subtype\":\"Cond\",\"node_data\":{\"serde_tag\":\"EElsifCond\",\"expr1\":"
             ^^ pp_expr expression1
             ^^ string ",\"expr2\":"
             ^^ pp_expr expression2
@@ -1711,17 +1711,17 @@ unop :: 'Unop_' ::=
 
 slice :: 'Slice_' ::=
     {{ pp es = match es with
-        | Slice_Single expression -> string "{\"node_type\":\"Slice\",\"node_subtype\":\"Single\",\"node_data\":{\"serde_tag\":\"SliceSingleData\",\"expr\":"
+        | Slice_Single expression -> string "{\"node_type\":\"Slice\",\"node_subtype\":\"Single\",\"node_data\":{\"serde_tag\":\"SliceSingle\",\"expr\":"
             ^^ pp_expr expression
             ^^ string "}"
             ^^ string "}"
-        | Slice_HiLo (high_expression, low_expression) -> string "{\"node_type\":\"Slice\",\"node_subtype\":\"HiLo\",\"node_data\":{\"serde_tag\":\"SliceHiLoData\",\"hi_expr\":"
+        | Slice_HiLo (high_expression, low_expression) -> string "{\"node_type\":\"Slice\",\"node_subtype\":\"HiLo\",\"node_data\":{\"serde_tag\":\"SliceHiLo\",\"hi_expr\":"
             ^^ pp_expr high_expression
             ^^ string ",\"lo_expr\":"
             ^^ pp_expr low_expression
             ^^ string "}"
             ^^ string "}"
-        | Slice_LoWd (low_expression, width_expression) -> string "{\"node_type\":\"Slice\",\"node_subtype\":\"LoWd\",\"node_data\":{\"serde_tag\":\"SliceLoWdData\",\"lo_expr\":"
+        | Slice_LoWd (low_expression, width_expression) -> string "{\"node_type\":\"Slice\",\"node_subtype\":\"LoWd\",\"node_data\":{\"serde_tag\":\"SliceLoWd\",\"lo_expr\":"
             ^^ pp_expr low_expression
             ^^ string ",\"wd_expr\":"
             ^^ pp_expr width_expression

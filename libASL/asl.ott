@@ -1009,17 +1009,17 @@ stmt :: 'Stmt_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_Unpred\",\"node_data\":{\"serde_tag\":\"StmtDepUnpred\",\"l\":"
+        | Stmt_Dep_Unpred (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"DepUnpred\",\"node_data\":{\"serde_tag\":\"StmtDepUnpred\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_ImpDef\",\"node_data\":{\"serde_tag\":\"StmtDepImpDef\",\"string_lit\":"
+        | Stmt_Dep_ImpDef (stringLiteral, location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"DepImpDef\",\"node_data\":{\"serde_tag\":\"StmtDepImpDef\",\"string_lit\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String stringLiteral))
             ^^ string ",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"Dep_Undefined\",\"node_data\":{\"serde_tag\":\"StmtDepUndefined\",\"l\":"
+        | Stmt_Dep_Undefined (location) -> string "{\"node_type\":\"Stmt\",\"node_subtype\":\"DepUndefined\",\"node_data\":{\"serde_tag\":\"StmtDepUndefined\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
@@ -1536,7 +1536,7 @@ expr :: 'Expr_' ::=
             ^^ string "}"
         | Expr_ImpDef (typ, opt_stringLiteral) -> string "{\"node_type\":\"Expr\",\"node_subtype\":\"ImpDef\",\"node_data\":{\"serde_tag\":\"ExprImpDef\",\"ty\":"
             ^^ pp_ty typ
-            ^^ string ",\"string_lit\":"
+            ^^ string ",\"opt_string_lit\":"
             ^^ (match opt_stringLiteral with
                 | Some s -> PPrint.string (Yojson.Safe.to_string (`String s))
                 | None -> string "null")

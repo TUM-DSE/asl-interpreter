@@ -844,21 +844,21 @@ decode_body :: 'DecoderBody_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | DecoderBody_UNALLOC (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"UNALLOC\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"l\":"
+        | DecoderBody_UNALLOC (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"UNALLOC\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNALLOC\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | DecoderBody_NOP (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"NOP\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"l\":"
+        | DecoderBody_NOP (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"NOP\",\"node_data\":{\"serde_tag\":\"DecoderBodyNOP\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | DecoderBody_Encoding (identifier, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"UNPRED\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"ident\":\""
+        | DecoderBody_Encoding (identifier, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"UNPRED\",\"node_data\":{\"serde_tag\":\"DecoderBodyEncoding\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | DecoderBody_Decoder (instruction_fields, decode_case, location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"Decoder\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"instr_fields\":["
+        | DecoderBody_Decoder (instruction_fields, decode_case, location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"Decoder\",\"node_data\":{\"serde_tag\":\"DecoderBodyDecoder\",\"instr_fields\":["
             ^^ separate (string ",") (List.map pp_instr_field instruction_fields)
             ^^ string "],\"decode_case\":"
             ^^ pp_decode_case decode_case

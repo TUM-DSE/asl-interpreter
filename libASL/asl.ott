@@ -769,7 +769,15 @@ instr_unpred :: 'Instr_Unpred_' ::=
 
 decode_case :: 'DecoderCase_' ::=
     {{ aux _ l }}
-    {{ pp es = string "{\"node_type\":\"DecoderCase\",\"node_subtype\":\"Case\",\"node_data\":\"placeholder\"}" }}
+    {{ pp es = match es with
+        | DecoderCase_Case (decode_slices, decode_alts, location) -> string "{\"node_type\":\"DecoderCase\",\"node_subtype\":\"Case\",\"node_data\":{\"serde_tag\":\"DecoderCase\",\"decode_slices\":["
+            ^^ separate (string ",") (List.map pp_decode_slice decode_slices)
+            ^^ string "],\"decode_alts\":["
+            ^^ separate (string ",") (List.map pp_decode_alt decode_alts)
+            ^^ string "],\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}" }}
     | case ( decode_slice1 , .. , decode_slicem ) of EOL
       INDENT
           decode_alt1 ... decode_altn
@@ -777,14 +785,53 @@ decode_case :: 'DecoderCase_' ::=
       :: :: Case
 
 decode_slice :: 'DecoderSlice_' ::=
+    {{ pp es = match es with 
+        | DecoderSlice_Slice (int1, int2) -> string "{\"node_type\":\"DecoderSlice\",\"node_subtype\":\"Slice\",\"node_data\":{\"serde_tag\":\"DecoderSlice\",\"int1\":"
+            ^^ PPrint.string (string_of_int int1)
+            ^^ string ",\"int2\":"
+            ^^ PPrint.string (string_of_int int2)
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderSlice_FieldName (identifier) -> string "{\"node_type\":\"DecoderSlice\",\"node_subtype\":\"FieldName\",\"node_data\":{\"serde_tag\":\"DecoderSliceFieldName\",\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\"}"
+            ^^ string "}"
+        | DecoderSlice_Concat (identifiers) -> string "{\"node_type\":\"DecoderSlice\",\"node_subtype\":\"Concat\",\"node_data\":{\"serde_tag\":\"DecoderSliceConcat\",\"idents\":["
+            ^^ separate (string ",") (List.map (fun ident -> string "\"" ^^ pp_ident ident ^^ string "\"") identifiers)
+            ^^ string "]}"
+            ^^ string "}" }}
     | offset1 +: offset2     :: :: Slice
     | ident                  :: :: FieldName
     | ident1 : .... : identn :: :: Concat
 
 decode_alt :: 'DecoderAlt_' ::=
+    {{ pp es = match es with 
+        | DecoderAlt_Alt (decode_patterns, decode_body) -> string "{\"node_type\":\"DecoderAlt\",\"node_subtype\":\"Alt\",\"node_data\":{\"serde_tag\":\"DecoderAlt\",\"decode_patterns\":["
+            ^^ separate (string ",") (List.map pp_decode_pattern decode_patterns)
+            ^^ string "],\"decode_body\":"
+            ^^ pp_decode_body decode_body
+            ^^ string "}"
+            ^^ string "}" }}
     | when ( decode_pattern1 , .. , decode_patternm ) => decode_body :: :: Alt
 
 decode_pattern :: 'DecoderPattern_' ::=
+    {{ pp es = match es with
+        | DecoderPattern_Bits (bitsLiteral) -> string "{\"node_type\":\"DecoderPattern\",\"node_subtype\":\"Bits\",\"node_data\":{\"serde_tag\":\"DecoderPatternBits\",\"bits_lit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String bitsLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderPattern_Mask (maskLiteral) -> string "{\"node_type\":\"DecoderPattern\",\"node_subtype\":\"Mask\",\"node_data\":{\"serde_tag\":\"DecoderPatternMask\",\"mask_lit\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String maskLiteral))
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderPattern_Wildcard (identifier) -> string "{\"node_type\":\"DecoderPattern\",\"node_subtype\":\"Wildcard\",\"node_data\":{\"serde_tag\":\"DecoderPatternWildcard\",\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\"}"
+            ^^ string "}"
+        | DecoderPattern_Not (decode_pattern) -> string "{\"node_type\":\"DecoderPattern\",\"node_subtype\":\"Not\",\"node_data\":{\"serde_tag\":\"DecoderPatternNot\",\"decode_pattern\":"
+            ^^ pp_decode_pattern decode_pattern
+            ^^ string "}"
+            ^^ string "}" }}
     | bitsLit          :: :: Bits
     | maskLit          :: :: Mask
     | ident            :: :: Wildcard {{ com todo: wildcard should be underscore }}
@@ -792,6 +839,33 @@ decode_pattern :: 'DecoderPattern_' ::=
 
 decode_body :: 'DecoderBody_' ::=
     {{ aux _ l }}
+    {{ pp es = match es with
+        | DecoderBody_UNPRED (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"UNPRED\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderBody_UNALLOC (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"UNALLOC\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderBody_NOP (location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"NOP\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderBody_Encoding (identifier, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"UNPRED\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"ident\":\""
+            ^^ pp_ident identifier
+            ^^ string "\",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}"
+        | DecoderBody_Decoder (instruction_fields, decode_case, location) -> string "{\"node_type\":\"DecoderBody\",\"node_subtype\":\"Decoder\",\"node_data\":{\"serde_tag\":\"DecoderBodyUNPRED\",\"instr_fields\":["
+            ^^ separate (string ",") (List.map pp_instr_field instruction_fields)
+            ^^ string "],\"decode_case\":"
+            ^^ pp_decode_case decode_case
+            ^^ string ",\"l\":"
+            ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
+            ^^ string "}"
+            ^^ string "}" }}
     | __UNPREDICTABLE  EOL :: :: UNPRED
     | __UNALLOCATED    EOL :: :: UNALLOC
     | __NOP            EOL :: :: NOP

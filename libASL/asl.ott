@@ -852,7 +852,7 @@ decode_body :: 'DecoderBody_' ::=
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
             ^^ string "}"
             ^^ string "}"
-        | DecoderBody_Encoding (identifier, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"UNPRED\",\"node_data\":{\"serde_tag\":\"DecoderBodyEncoding\",\"ident\":\""
+        | DecoderBody_Encoding (identifier, location) -> string "{\"node_type\":\"Encoding\",\"node_subtype\":\"Encoding\",\"node_data\":{\"serde_tag\":\"DecoderBodyEncoding\",\"ident\":\""
             ^^ pp_ident identifier
             ^^ string "\",\"l\":"
             ^^ PPrint.string (Yojson.Safe.to_string (`String (pp_loc location)))
